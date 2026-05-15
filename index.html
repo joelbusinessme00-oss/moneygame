@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillArena Ghana - Escrow System</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --accent-gold: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #device-wrapper {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-dark);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            border-left: 2px solid #334155;
+            border-right: 2px solid #334155;
+            overflow-y: auto;
+        }
+
+        /* Headers & Nav */
+        header {
+            background-color: var(--bg-card);
+            padding: 15px 20px;
+            display: none; /* Hidden on landing page */
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent-blue);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .bottom-nav {
+            display: none;
+            position: sticky;
+            bottom: 0;
+            background-color: var(--bg-card);
+            padding: 15px;
+            justify-content: space-around;
+            border-top: 1px solid #334155;
+            z-index: 10;
+        }
+
+        .nav-item {
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+            .nav-item.active {
+                color: var(--accent-blue);
+                font-weight: bold;
+            }
+
+        .wallet-info {
+            text-align: right;
+            font-size: 0.85rem;
+        }
+
+        .amount {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .text-green {
+            color: var(--accent-green);
+        }
+
+        .text-purple {
+            color: var(--accent-purple);
+        }
+
+        .text-gold {
+            color: var(--accent-gold);
+        }
+
+        .text-red {
+            color: var(--accent-red);
+        }
+
+        /* Views */
+        .view {
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+            animation: fadeIn 0.3s ease;
+        }
+
+            .view.active {
+                display: flex;
+            }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Components */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #334155;
+        }
+
+        h1, h2, h3 {
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #0b1121;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--accent-green);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--accent-red);
+            color: white;
+        }
+
+        .btn-gold {
+            background-color: var(--accent-gold);
+            color: black;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-main);
+        }
+
+        /* Specific UI Elements */
+        .hero {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .hero-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .players {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .prize-pool {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px dashed var(--accent-green);
+            margin-bottom: 15px;
+        }
+
+        .escrow-animation {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .lock {
+            font-size: 4rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .admin-mode {
+            border-top: 4px solid var(--accent-gold);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="device-wrapper">
+
+        <!-- TOP HEADER (Appears after login) -->
+        <header id="main-header">
+            <div style="font-weight: bold;">🎮 <span id="display-user">Guest</span></div>
+            <div class="wallet-info">
+                Avail: <span class="amount text-green" id="avail-bal">₵0.00</span><br>
+                Escrow: <span class="amount text-purple" id="escrow-bal">₵0.00</span>
+            </div>
+        </header>
+
+        <!-- 1. LANDING PAGE -->
+        <div id="v-landing" class="view active">
+            <div class="hero">
+                <div class="hero-icon">🏆</div>
+                <h1>SkillArena Ghana</h1>
+                <p style="margin-top:10px;">Play FIFA & COD Tournaments for real Cedis. Powered by Smart Escrow. 100% Scam-Free.</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <h3>No more "He didn't pay me"</h3>
+                <p style="margin: 10px 0;">Funds are locked securely before the match starts and paid out automatically by our API.</p>
+                <button class="btn-primary" onclick="nav('v-signup')">Create Free Account</button>
+                <button class="btn-gold" style="margin-top: 15px;" onclick="nav('v-admin')">Enter Admin Dashboard</button>
+            </div>
+        </div>
+
+        <!-- 2. SIGN UP & LINK GAME ACCOUNT -->
+        <div id="v-signup" class="view">
+            <h2>Create Account</h2>
+            <p>Step 1: Basic Info</p>
+            <div class="card">
+                <label>Username</label>
+                <input type="text" id="username-input" value="Kwame_Pro">
+                <label>Email</label>
+                <input type="email" value="kwame@email.com">
+            </div>
+
+            <p>Step 2: Link Identity (Anti-Cheat)</p>
+            <div class="card">
+                <label>PlayStation Network ID / Xbox Gamertag</label>
+                <input type="text" value="KwameSniper99">
+                <p style="font-size: 0.8rem; color: var(--accent-green);">✓ API Connection Verified</p>
+            </div>
+            <button class="btn-primary" onclick="login()">Complete Setup</button>
+        </div>
+
+        <!-- 3. WALLET & DEPOSIT -->
+        <div id="v-wallet" class="view">
+            <h2>My Wallet</h2>
+            <div class="card" style="text-align: center;">
+                <p>Total Available Balance</p>
+                <h1 class="text-green" id="wallet-big-bal">₵0.00</h1>
+            </div>
+
+            <h3>Deposit Funds</h3>
+            <div class="card">
+                <label>Payment Method</label>
+                <select>
+                    <option>MTN Mobile Money</option>
+                    <option>Telecel Cash</option>
+                    <option>Bank Card</option>
+                </select>
+                <label>Amount (GHS)</label>
+                <input type="number" id="deposit-amount" value="100">
+                <button class="btn-success" onclick="depositMoney()">Deposit via MoMo</button>
+            </div>
+        </div>
+
+        <!-- 4. LOBBY / MATCHMAKING -->
+        <div id="v-lobby" class="view">
+            <h2>Skill Challenges</h2>
+            <p>Accept a challenge. Entry fee moves to Escrow.</p>
+
+            <div class="card">
+                <div class="challenge-header">
+                    <span>⚽ EA Sports FC 24 (PS5)</span>
+                    <span>Best of 1</span>
+                </div>
+                <div class="players">
+                    <span>Yaw_Gamer</span> <span style="font-size: 0.9rem;">VS</span> <span>You</span>
+                </div>
+                <div class="prize-pool">
+                    Entry Fee: ₵50 <br>
+                    <strong>Prize Pool: ₵90</strong> <br>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">(10% Platform Fee applies to winnings)</span>
+                </div>
+                <button class="btn-primary" onclick="setupMatch()">Accept & Lock ₵50</button>
+            </div>
+
+            <div class="card">
+                <div class="challenge-header">
+                    <span>🔫 Call of Duty: Warzone</span>
+                    <span>Most Kills</span>
+                </div>
+                <div class="players">
+                    <span>Kojo_Sniper</span> <span style="font-size: 0.9rem;">VS</span> <span>You</span>
+                </div>
+                <div class="prize-pool">
+                    Entry Fee: ₵100 <br>
+                    <strong>Prize Pool: ₵180</strong>
+                </div>
+                <button class="btn-outline" onclick="alert('Insufficient funds. Go to Wallet.')">Accept & Lock ₵100</button>
+            </div>
+        </div>
+
+        <!-- 5. ACTIVE MATCH (ESCROW LOCKED) -->
+        <div id="v-active" class="view">
+            <div class="escrow-animation">
+                <div class="lock">🔒</div>
+                <h2 class="text-purple">₵100 Secured in Escrow</h2>
+                <p>Your ₵50 + Opponent's ₵50 is locked.</p>
+            </div>
+
+            <div class="card" style="text-align: center;">
+                <h3>Match in Progress...</h3>
+                <p>Play against <strong>Yaw_Gamer</strong> on your PS5.</p>
+                <br>
+                <p id="api-status" style="color: var(--accent-blue);">System monitoring EA servers for final score...</p>
+            </div>
+
+            <!-- Presentation Buttons to simulate outcomes -->
+            <button class="btn-success" onclick="simulateWin()">[Simulate: You Win automatically]</button>
+            <button class="btn-danger" style="margin-top: 10px;" onclick="nav('v-dispute')">[Simulate: API Fails (Raise Dispute)]</button>
+        </div>
+
+        <!-- 6. RESULT PAGE (AUTOMATED) -->
+        <div id="v-result" class="view">
+            <div class="escrow-animation">
+                <div class="lock">✅</div>
+                <h2 class="text-green">Match Verified!</h2>
+                <p>EA API confirmed you won 3 - 1.</p>
+            </div>
+
+            <div class="card" style="text-align: center; border-color: var(--accent-green);">
+                <p>Escrow Released Automatically</p>
+                <h1 class="text-green">+ ₵90.00</h1>
+                <p style="font-size: 0.8rem; margin-top:5px;">(₵100 pool - ₵10 platform fee)</p>
+            </div>
+            <button class="btn-primary" onclick="finishMatch()">Return to Lobby</button>
+        </div>
+
+        <!-- 7. DISPUTE CENTER (FALLBACK) -->
+        <div id="v-dispute" class="view">
+            <h2>Dispute Center</h2>
+            <p class="text-red">Funds remain frozen in Escrow.</p>
+
+            <div class="card">
+                <h3>Upload Evidence</h3>
+                <p>The automated API couldn't verify the match. Please upload a screenshot of the final score.</p>
+                <input type="file" style="background: none; border: none;">
+                <button class="btn-primary" onclick="submitDispute()">Submit to Tribunal</button>
+            </div>
+        </div>
+
+        <!-- 8. ADMIN DASHBOARD -->
+        <div id="v-admin" class="view admin-mode">
+            <h2 class="text-gold">Admin Command Center</h2>
+
+            <div style="display: flex; gap: 10px;">
+                <div class="card" style="flex: 1; text-align: center;">
+                    <p>Platform Revenue</p>
+                    <h3 class="text-green">₵<span id="admin-rev">0</span></h3>
+                </div>
+                <div class="card" style="flex: 1; text-align: center;">
+                    <p>Funds in Escrow</p>
+                    <h3 class="text-purple">₵<span id="admin-escrow">0</span></h3>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 15px;">Pending Disputes (Tribunal)</h3>
+            <div class="card" id="admin-dispute-card" style="display: none;">
+                <div class="challenge-header" style="color: var(--accent-red);">🚨 FIFA 24 - Match ID #8492</div>
+                <p><strong>Yaw_Gamer</strong> vs <strong>Kwame_Pro</strong></p>
+                <p>Prize Pool: ₵100 (Locked)</p>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn-success" style="font-size: 0.8rem;" onclick="adminResolve('kwame')">Award Kwame</button>
+                    <button class="btn-danger" style="font-size: 0.8rem;" onclick="adminResolve('yaw')">Award Yaw</button>
+                    <button class="btn-outline" style="font-size: 0.8rem;" onclick="adminResolve('refund')">Refund Both</button>
+                </div>
+            </div>
+            <p id="no-disputes">No active disputes.</p>
+
+            <button class="btn-outline" style="margin-top: auto;" onclick="nav('v-landing')">Logout Admin</button>
+        </div>
+
+        <!-- BOTTOM NAVIGATION (For Gamer Flow) -->
+        <div id="bottom-nav" class="bottom-nav">
+            <div class="nav-item" onclick="nav('v-lobby')">🎮<br>Lobby</div>
+            <div class="nav-item" onclick="nav('v-wallet')">💼<br>Wallet</div>
+        </div>
+
+    </div>
+
+    <script>
+    // System State (Mocking a database)
+    let state = {
+        user: "",
+        avail: 0,
+        escrow: 0,
+        adminRev: 0,
+        adminEscrow: 0
+    };
+
+    // DOM Elements
+    const hAvail = document.getElementById('avail-bal');
+    const hEscrow = document.getElementById('escrow-bal');
+    const wBigBal = document.getElementById('wallet-big-bal');
+    const header = document.getElementById('main-header');
+    const bNav = document.getElementById('bottom-nav');
+    const adRev = document.getElementById('admin-rev');
+    const adEscrow = document.getElementById('admin-escrow');
+    const disputeCard = document.getElementById('admin-dispute-card');
+    const noDisputes = document.getElementById('no-disputes');
+
+    // Navigation Logic
+    function nav(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+
+        // Hide headers/navs on Landing, SignUp, and Admin
+        if(viewId === 'v-landing' || viewId === 'v-signup' || viewId === 'v-admin') {
+            header.style.display = 'none';
+            bNav.style.display = 'none';
+        } else {
+            header.style.display = 'flex';
+            bNav.style.display = 'flex';
+        }
+        updateUI();
+    }
+
+    // Update UI Balances
+    function updateUI() {
+        hAvail.innerText = `₵${state.avail.toFixed(2)}`;
+        hEscrow.innerText = `₵${state.escrow.toFixed(2)}`;
+        wBigBal.innerText = `₵${state.avail.toFixed(2)}`;
+
+        // Admin Stats
+        adRev.innerText = state.adminRev.toFixed(2);
+        adEscrow.innerText = state.adminEscrow.toFixed(2);
+    }
+
+    // User Actions
+    function login() {
+        state.user = document.getElementById('username-input').value;
+        document.getElementById('display-user').innerText = state.user;
+        nav('v-wallet');
+    }
+
+    function depositMoney() {
+        let amt = parseFloat(document.getElementById('deposit-amount').value);
+        state.avail += amt;
+        alert(`₵${amt} successfully deposited via MoMo!`);
+        updateUI();
+        nav('v-lobby');
+    }
+
+    // Match Logic
+    function setupMatch() {
+        if(state.avail >= 50) {
+            // Player locks 50, Opponent locks 50
+            state.avail -= 50;
+            state.escrow += 50; // User's side
+            state.adminEscrow = 100; // Platform sees total 100
+            nav('v-active');
+        } else {
+            alert("Insufficient funds! Please deposit.");
+            nav('v-wallet');
+        }
+    }
+
+    function simulateWin() {
+        document.getElementById('api-status').innerText = "Match finished! Verifying EA servers...";
+        setTimeout(() => {
+            // Escrow releases. 100 pool -> 90 to user, 10 to admin.
+            state.escrow = 0;
+            state.adminEscrow = 0;
+            state.avail += 90;
+            state.adminRev += 10; // Platform takes 10% fee
+            nav('v-result');
+        }, 1500);
+    }
+
+    function finishMatch() { nav('v-lobby'); }
+
+    // Dispute Logic (Admin Flow)
+    function submitDispute() {
+        alert("Evidence submitted successfully. A platform admin will review it.");
+        disputeCard.style.display = 'block';
+        noDisputes.style.display = 'none';
+        nav('v-admin');
+    }
+
+    function adminResolve(action) {
+        if(action === 'kwame') {
+            alert("You awarded the win to Kwame_Pro. Escrow paid out.");
+            state.avail += 90;
+            state.adminRev += 10;
+        } else if(action === 'refund') {
+            alert("Match cancelled. Funds returned to both players.");
+            state.avail += 50; // Refund user's initial 50
+        } else {
+            alert("Awarded to Yaw_Gamer. Kwame loses his entry fee.");
+            state.adminRev += 10;
+            // Yaw (invisible in state) would get the 90.
+        }
+
+        state.escrow = 0;
+        state.adminEscrow = 0;
+        disputeCard.style.display = 'none';
+        noDisputes.style.display = 'block';
+        updateUI();
+    }
+    </script>
+
+</body>
+</html>
