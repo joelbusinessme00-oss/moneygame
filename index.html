@@ -300,7 +300,7 @@
             <p>Step 1: Basic Info</p>
             <div class="card">
                 <label>Username</label>
-                <input type="text" id="username-input" value="Kwame_Pro">
+                <input type="text" id="username-input" value="Bossu_Wiseman">
                 <label>Email</label>
                 <input type="email" value="kwame@email.com">
             </div>
@@ -347,7 +347,7 @@
                     <span>Best of 1</span>
                 </div>
                 <div class="players">
-                    <span>Yaw_Gamer</span> <span style="font-size: 0.9rem;">VS</span> <span>You</span>
+                    <span>Kwame_Gamer</span> <span style="font-size: 0.9rem;">VS</span> <span>You</span>
                 </div>
                 <div class="prize-pool">
                     Entry Fee: ₵50 <br>
@@ -363,7 +363,7 @@
                     <span>Most Kills</span>
                 </div>
                 <div class="players">
-                    <span>Kojo_Sniper</span> <span style="font-size: 0.9rem;">VS</span> <span>You</span>
+                    <span>Toufic_Sniper</span> <span style="font-size: 0.9rem;">VS</span> <span>You</span>
                 </div>
                 <div class="prize-pool">
                     Entry Fee: ₵100 <br>
@@ -383,7 +383,7 @@
 
             <div class="card" style="text-align: center;">
                 <h3>Match in Progress...</h3>
-                <p>Play against <strong>Yaw_Gamer</strong> on your PS5.</p>
+                <p>Play against <strong>Kwame_Gamer</strong> on your PS5.</p>
                 <br>
                 <p id="api-status" style="color: var(--accent-blue);">System monitoring EA servers for final score...</p>
             </div>
@@ -440,7 +440,7 @@
             <h3 style="margin-top: 15px;">Pending Disputes (Tribunal)</h3>
             <div class="card" id="admin-dispute-card" style="display: none;">
                 <div class="challenge-header" style="color: var(--accent-red);">🚨 FIFA 24 - Match ID #8492</div>
-                <p><strong>Yaw_Gamer</strong> vs <strong>Kwame_Pro</strong></p>
+                <p><strong>Kwame_Gamer</strong> vs <strong>Bossu_Wiseman</strong></p>
                 <p>Prize Pool: ₵100 (Locked)</p>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
                     <button class="btn-success" style="font-size: 0.8rem;" onclick="adminResolve('kwame')">Award Kwame</button>
@@ -562,14 +562,14 @@
 
     function adminResolve(action) {
         if(action === 'kwame') {
-            alert("You awarded the win to Kwame_Pro. Escrow paid out.");
+            alert("You awarded the win to Bossu_Wiseman. Escrow paid out.");
             state.avail += 90;
             state.adminRev += 10;
         } else if(action === 'refund') {
             alert("Match cancelled. Funds returned to both players.");
             state.avail += 50; // Refund user's initial 50
         } else {
-            alert("Awarded to Yaw_Gamer. Kwame loses his entry fee.");
+            alert("Awarded to Kwame_Gamer. Kwame loses his entry fee.");
             state.adminRev += 10;
             // Yaw (invisible in state) would get the 90.
         }
